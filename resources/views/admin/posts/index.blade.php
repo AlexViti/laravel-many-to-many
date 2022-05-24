@@ -35,12 +35,8 @@
                                 <th scope="row">{{ $post->id }}</th>
                                 <td>{{ $post->title }}</td>
                                 <td>{{ $post->user->name }}</td>
-                                <td>{{ $post->category->name }}</td>
-                                <td>
-                                    @foreach ($post->tags as $tag)
-                                        <span class="badge badge-primary">{{ $tag->name }}</span>
-                                    @endforeach
-                                </td>
+                                <td>@if ($post->category) {{ $post->category->name }} @endif</td>
+                                <td>@if ($post->tags) {{ $post->tags->pluck('name')->join(', ') }} @endif</td>
                                 <td>{{ $post->created_at }}</td>
                                 <td>{{ $post->updated_at }}</td>
                                 <td class="d-flex align-items-start">

@@ -7,6 +7,7 @@ use App\Category;
 use App\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -25,6 +26,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::paginate(10);
+
         return view('admin.posts.index', compact('posts'));
     }
 
@@ -52,18 +54,15 @@ class PostController extends Controller
         $formData = $request->all() + ['user_id' => auth()->id()];
         $tags = explode(' ', $formData['tags']);
 
-        if (Tag::whereIn('name', $tags)->exists()) {
-            $tags = Tag::whereIn('name', $tags)->get();
-        } else {
-            $tags = collect($tags)->map(function ($tag) {
-                return Tag::create(['name' => $tag]);
-            });
+        $formData['tags'] = [];
+
+        foreach ($tags as $tag) {
+            $tag = Tag::firstOrCreate(['name' => $tag, 'slug' => Str::slug($tag)]);
+            $formData['tags'][] = $tag->id;
         }
 
-        $tagsIds = Tag::whereIn('name', $tags)->pluck('id');
-        $formData['tags'] = $tagsIds;
-
         $post = Post::create($formData);
+        $post->tags()->attach($formData['tags']);
 
         return redirect()->route('admin.posts.index', $post->slug)->with('status', 'Your post has been created');
     }
