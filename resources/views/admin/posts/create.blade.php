@@ -19,7 +19,7 @@
                     @csrf
 
                     <div class="form-group">
-                        <label for="title">Title</label>
+                        <label for="title" class="col-form-label">Title</label>
                         <input type="text" class="form-control" id="title" name="title">
                     </div>
                     @error('title')
@@ -27,11 +27,28 @@
                     @enderror
 
                     <div class="form-group">
-                        <label for="slug">Slug</label>
+                        <label for="slug" class="col-form-label">Slug</label>
                         <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug') }}">
                         <input type="button" class="btn btn-primary" id="slug-btn" value="Create Slug">
                     </div>
                     @error('slug')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+
+                    <div class="form-group">
+                        <label for="category" class="col-form-label">Category</label>
+                        <select class="form-select" id="category" name="category_id">
+                            <option value="">Select Category</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ old('category_id') == $category->id ? 'selected' : '' }}
+                                >
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @error('category')
                         <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
 
@@ -42,6 +59,11 @@
                     @error('body')
                         <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
+
+                    <div class="form-group">
+                        <label for="tags" class="col-form-label">Tags</label>
+                        <input type="text" class="form-control" id="tags" name="tags">
+                    </div>
 
                     <button type="submit" class="btn btn-primary">Create</button>
                 </form>

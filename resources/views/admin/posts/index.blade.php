@@ -22,6 +22,8 @@
                             <th scope="col">#</th>
                             <th scope="col">Title</th>
                             <th scope="col">Author</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Tags</th>
                             <th scope="col">Created</th>
                             <th scope="col">Updated</th>
                             <th scope="col">Actions</th>
@@ -33,6 +35,12 @@
                                 <th scope="row">{{ $post->id }}</th>
                                 <td>{{ $post->title }}</td>
                                 <td>{{ $post->user->name }}</td>
+                                <td>{{ $post->category->name }}</td>
+                                <td>
+                                    @foreach ($post->tags as $tag)
+                                        <span class="badge badge-primary">{{ $tag->name }}</span>
+                                    @endforeach
+                                </td>
                                 <td>{{ $post->created_at }}</td>
                                 <td>{{ $post->updated_at }}</td>
                                 <td class="d-flex align-items-start">

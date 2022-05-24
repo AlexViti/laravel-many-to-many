@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Post;
+use App\Category;
+use App\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -10,8 +12,10 @@ class PostController extends Controller
 {
     protected $validationRules = [
         'title' => 'required|max:100',
-        'slug' => 'required|unique:posts|max:100',
+        'slug' => "required|unique:posts|max:100",
+        'category_id' => 'required|exists:categories,id',
         'body' => 'required',
+
     ];
     /**
      * Display a listing of the resource.
@@ -31,7 +35,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+        $categories = Category::all();
+        return view('admin.posts.create', compact('categories'));
     }
 
     /**
@@ -44,7 +49,21 @@ class PostController extends Controller
     {
         $this->validate($request, $this->validationRules);
 
-        $post = Post::create($request->all() + ['user_id' => auth()->id()]);
+        $formData = $request->all() + ['user_id' => auth()->id()];
+        $tags = explode(' ', $formData['tags']);
+
+        if (Tag::whereIn('name', $tags)->exists()) {
+            $tags = Tag::whereIn('name', $tags)->get();
+        } else {
+            $tags = collect($tags)->map(function ($tag) {
+                return Tag::create(['name' => $tag]);
+            });
+        }
+
+        $tagsIds = Tag::whereIn('name', $tags)->pluck('id');
+        $formData['tags'] = $tagsIds;
+
+        $post = Post::create($formData);
 
         return redirect()->route('admin.posts.index', $post->slug)->with('status', 'Your post has been created');
     }
@@ -87,6 +106,7 @@ class PostController extends Controller
         if(auth()->id() !== $post->user_id) {
             abort(403);
         }
+        $validationRules['slug'] = 'required|max:100|unique:posts,slug,' . $post->id;
         $this->validate($request, $this->validationRules);
         $post->update($request->all());
         return redirect()->route('admin.posts.edit', $post->slug)->with('status', 'Your post has been updated');

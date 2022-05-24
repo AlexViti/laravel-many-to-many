@@ -29,6 +29,7 @@ Route::middleware('auth')
         Route::post('/slug', 'HomeController@slug')->name('slug');
         Route::get('/posts/my-posts', 'PostController@myindex')->name('myindex');
         Route::resource('/posts', 'PostController');
+        Route::resource('/categories', 'CategoryController');
     });
 
 Route::view("{any?}", 'welcome')->where("any", ".*");
